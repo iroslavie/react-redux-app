@@ -1,17 +1,55 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import { taskCompleted, titleChange, titleDeleted } from "./store/task";
+import configureStore from "./store/store";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const store = configureStore();
+
+const App = (params) => {
+  const [state, setState] = useState(store.getState());
+
+  useEffect(() => {
+    store.subscribe(() => {
+      setState(store.getState);
+    });
+  }, []);
+
+  const completeTask = (taskId) => {
+    store.dispatch(taskCompleted(taskId));
+  };
+
+  const changeTitle = (taskId) => {
+    store.dispatch(titleChange(taskId));
+  };
+
+  const deleteTitle = (taskId) => {
+    store.dispatch(titleDeleted(taskId));
+  };
+
+  return (
+    <>
+      <h1> Арр </h1>
+      <ul>
+        {state.map((el) => (
+          <li key={el.id}>
+            <p>{el.title}</p>
+            <p>{`Completed: ${el.completed}`}</p>
+            <button onClick={() => completeTask(el.id)}>Complete</button>
+            <button onClick={() => changeTitle(el.id)}>Change Title</button>
+            <button onClick={() => deleteTitle(el.id)}>Delete</button>
+            <hr />
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+};
+
+const container = document.getElementById("root");
+const root = createRoot(container);
+
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
